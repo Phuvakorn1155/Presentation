@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:math';
 
-
 void main() {
   runApp(BottomNavi());
 }
@@ -1444,13 +1443,13 @@ class _AListsState extends State<ALists> {
                     leading:
                         Icon(Icons.arrow_forward_ios, color: Color(0xFF16130C)),
                     title: Text(
-                      'หน้า หน้าเข้าสู่ระบบ/หน้าลงทะเบียน/ชำระวงเงินบัตรเครดิต',
+                      'หน้า ชำระวงเงินบัตรเครดิต',
                       style: TextStyle(
                           color: Color(0xFF191919),
                           fontWeight: FontWeight.bold),
                     ),
                     subtitle: Text(
-                      'ไปที่หน้า หน้าเข้าสู่ระบบ/หน้าลงทะเบียน/ชำระวงเงินบัตรเครดิต',
+                      'ไปที่หน้า เข้าสู่ระบบ-ลงทะเบียน/ชำระวงเงินบัตรเครดิต',
                       style: TextStyle(color: Color(0xFF313131)),
                     ),
                   ),
@@ -1476,31 +1475,6 @@ class _AListsState extends State<ALists> {
                     ),
                     subtitle: Text(
                       'ไปที่หน้า ลงทะเบียน และ ดูข้อมูลการลงทะเบียน',
-                      style: TextStyle(color: Color(0xFF313131)),
-                    ),
-                  ),
-                ),
-              ),
-              GestureDetector(
-                onTap: () => Navigator.pushNamed(context, '/page5'),
-                child: Container(
-                  margin: const EdgeInsets.symmetric(vertical: 10),
-                  decoration: BoxDecoration(
-                    color: Color(0xFFFCF8F3),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: ListTile(
-                    tileColor: Color(0xFFFCFAF4),
-                    leading:
-                        Icon(Icons.arrow_forward_ios, color: Color(0xFF16130C)),
-                    title: Text(
-                      'หน้า เพิ่ม/ลบ/แก้ไขสินค้าAPI',
-                      style: TextStyle(
-                          color: Color(0xFF191919),
-                          fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text(
-                      'ไปที่หน้า เพิ่ม/ลบ/แก้ไขสินค้าAPI',
                       style: TextStyle(color: Color(0xFF313131)),
                     ),
                   ),
@@ -2625,6 +2599,41 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   String username = "";
+  // รายการธุรกรรมล่าสุด เพิ่ม isHidden
+  List<Map<String, dynamic>> _transactions = [
+    {
+      'icon': Icons.shopping_cart,
+      'color': Color(0xffFF6633),
+      'title': 'Alexander McQueen at Siam Paragon',
+      'date': '5 ก.ย. 2025',
+      'amount': -1200,
+      'isHidden': false, //ตัวแปรนี้
+    },
+    {
+      'icon': Icons.local_gas_station,
+      'color': Color(0xff913225),
+      'title': 'เติมน้ำมัน ปั๊มน้ำมันบางจาก(บางจาก - อิสรภาพ)',
+      'date': '3 ก.ย. 2025',
+      'amount': -800,
+      'isHidden': false,
+    },
+    {
+      'icon': Icons.credit_card,
+      'color': Color(0xff4D646C),
+      'title': 'ชำระค่าบัตร',
+      'date': '1 ก.ย. 2025',
+      'amount': 5000,
+      'isHidden': false,
+    },
+  ];
+  // ฟังก์ชันซ่อนรายการธุรกรรม
+  void _hideTransactions() {
+    setState(() {
+      for (var transaction in _transactions) {
+        transaction['isHidden'] = true; // ซ่อนแทนการลบ
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -2639,21 +2648,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
         backgroundColor: Color(0xff6B8068),
         centerTitle: true,
       ),
-      backgroundColor: const Color(0xfffbfbfb),
+      backgroundColor: const Color(0xffF9FDFE),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ยอดคงเหลือบัตรเครดิต
+            // แสดงชื่อผู้ใช้
             Text(
-              'สวัสดี, $username 👋', // แสดงชื่อผู้ใช้
+              'สวัสดี, $username 👋',
               style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 20),
+            // ยอดคงเหลือบัตรเครดิต
             Card(
               color: Color(0xffeeffff),
               elevation: 5,
@@ -2689,9 +2699,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            // ปุ่มชำระเงิน
+            // ปุ่มชำระเงิน (เปลี่ยนจากลบ -> ซ่อน)
             ElevatedButton(
-              onPressed: () {},
+              onPressed: _hideTransactions,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xff265dde),
                 padding: const EdgeInsets.symmetric(vertical: 15),
@@ -2705,44 +2715,55 @@ class _DashboardScreenState extends State<DashboardScreen> {
             // รายการธุรกรรมล่าสุด
             const Text('📌 ธุรกรรมล่าสุด',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+
+            // แสดงรายการธุรกรรม
             Expanded(
-              child: ListView(
-                children: const [
-                  ListTile(
-                    leading:
-                        Icon(Icons.shopping_cart, color: Color(0xffFF8936)),
-                    title: Text('Alexander McQueen at siam paragon'),
-                    subtitle: Text('฿1,200 - 5 ก.ย. 2025'),
-                    trailing: Text('-฿1,200',
+              child: _transactions.every((t) => t['isHidden'] == true)
+                  ? Center(
+                      child: Text(
+                        'ไม่มีธุรกรรมล่าสุด',
                         style: TextStyle(
-                            color: Color(0xffff1100),
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold)),
-                  ),
-                  ListTile(
-                    leading:
-                        Icon(Icons.local_gas_station, color: Color(0xff913225)),
-                    title:
-                        Text('เติมน้ำมัน ปั๊มน้ำมันบางจาก(บางจาก - อิสรภาพ)'),
-                    subtitle: Text('฿800 - 3 ก.ย. 2025'),
-                    trailing: Text('-฿800',
-                        style: TextStyle(
-                            color: Color(0xffff1100),
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold)),
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.credit_card, color: Color(0xff4D646C)),
-                    title: Text('ชำระค่าบัตร'),
-                    subtitle: Text('฿5,000 - 1 ก.ย. 2025'),
-                    trailing: Text('+฿5,000',
-                        style: TextStyle(
-                            color: Color(0xff118C4F),
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold)),
-                  ),
-                ],
-              ),
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: _transactions.length,
+                      itemBuilder: (context, index) {
+                        var transaction = _transactions[index];
+
+                        // เช็คว่าต้องซ่อนหรือไม่
+                        if (transaction['isHidden'] == true) {
+                          return SizedBox.shrink(); // ซ่อนแทนการลบ
+                        }
+
+                        return Container(
+                          color: Color(0xffEBF8FD),
+                          margin: EdgeInsets.symmetric(vertical: 5),
+                          child: ListTile(
+                            leading: Icon(
+                              transaction['icon'] ?? Icons.help,
+                              color: transaction['color'] ?? Color(0xff656862),
+                            ),
+                            title: Text(
+                              transaction['title'] ?? 'ไม่พบข้อมูล',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: Text(
+                              '฿${transaction['amount'] ?? 0} - ${transaction['date'] ?? 'ไม่ระบุวันที่'}',
+                            ),
+                            trailing: Text(
+                              '${(transaction['amount'] ?? 0) > 0 ? '+' : ''}฿${transaction['amount'] ?? 0}',
+                              style: TextStyle(
+                                color: (transaction['amount'] ?? 0) > 0
+                                    ? Color(0xff5A9769)
+                                    : Color(0xffDC1643),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
             ),
           ],
         ),
