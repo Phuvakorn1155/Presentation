@@ -1614,9 +1614,10 @@ class _TaskPageState extends State<TaskPage> {
   void _addTask() {
     setState(() {
       tasks.add({
-        'title': 'ไม่มีชื่อเรื่อง',
-        'subtitle': 'รายละเอียด...',
-        'time': 'xx:xx - xx:xx',
+        'title': '',
+        'subtitle': '',
+        'date': '1 มกราคม 2024',
+        'time': '00:00 - 23:59',
       });
     });
   }
@@ -1629,78 +1630,238 @@ class _TaskPageState extends State<TaskPage> {
             TextEditingController(text: tasks[index]['title']);
         final subtitleController =
             TextEditingController(text: tasks[index]['subtitle']);
-        final timeController =
-            TextEditingController(text: tasks[index]['time']);
-        return AlertDialog(
-          title: Text("แก้ไข"),
-          backgroundColor: Color(0xFFFCFAF4),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: titleController,
-                decoration: InputDecoration(
-                  labelText: 'Title',
-                  hintText: "ชื่อเรื่อง",
+
+        String selectedDate = "1";
+        String selectedMonth = "มกราคม";
+        String selectedYear = "2024";
+
+        String startHour = "00";
+        String startMinute = "00";
+        String endHour = "23";
+        String endMinute = "59";
+
+        List<String> months = [
+          "มกราคม",
+          "กุมภาพันธ์",
+          "มีนาคม",
+          "เมษายน",
+          "พฤษภาคม",
+          "มิถุนายน",
+          "กรกฎาคม",
+          "สิงหาคม",
+          "กันยายน",
+          "ตุลาคม",
+          "พฤศจิกายน",
+          "ธันวาคม"
+        ];
+        List<String> years =
+            List.generate(10, (index) => (2024 + index).toString());
+        List<String> hours =
+            List.generate(24, (index) => index.toString().padLeft(2, '0'));
+        List<String> minutes =
+            List.generate(60, (index) => index.toString().padLeft(2, '0'));
+
+        List<String> getDates(String month, String year) {
+          int maxDay = 31;
+          if (["เมษายน", "มิถุนายน", "กันยายน", "พฤศจิกายน"].contains(month)) {
+            maxDay = 30;
+          } else if (month == "กุมภาพันธ์") {
+            int yearInt = int.parse(year);
+            maxDay = (yearInt % 4 == 0) ? 29 : 28;
+          }
+          return List.generate(maxDay, (index) => (index + 1).toString());
+        }
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            List<String> dates = getDates(selectedMonth, selectedYear);
+
+            return AlertDialog(
+              title: Text("แก้ไข"),
+              backgroundColor: Color(0xffFCFAF4),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      style: TextStyle(color: Color(0xff0f1c41), fontSize: 17),
+                      controller: titleController,
+                      decoration: InputDecoration(
+                        labelText: 'ชื่อเรื่อง',
+                        hintText: "ใส่ชื่อเรื่อง",
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    TextField(
+                      style: TextStyle(color: Color(0xff0f1c41), fontSize: 17),
+                      controller: subtitleController,
+                      decoration: InputDecoration(
+                        labelText: 'รายละเอียด',
+                        hintText: "ใส่รายละเอียด",
+                        border: OutlineInputBorder(),
+                      ),
+                      maxLines: 5,
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      "เลือกวัน/เดือน/ปี",
+                      style: TextStyle(color: Color(0xff38233c), fontSize: 15),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        DropdownButton<String>(
+                          value: selectedDate,
+                          items: dates.map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (newValue) {
+                            setState(() {
+                              selectedDate = newValue!;
+                            });
+                          },
+                        ),
+                        DropdownButton<String>(
+                          value: selectedMonth,
+                          items: months.map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (newValue) {
+                            setState(() {
+                              selectedMonth = newValue!;
+                              selectedDate = "1";
+                            });
+                          },
+                        ),
+                        DropdownButton<String>(
+                          value: selectedYear,
+                          items: years.map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (newValue) {
+                            setState(() {
+                              selectedYear = newValue!;
+                              selectedDate = "1";
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      "เลือกเวลา",
+                      style: TextStyle(color: Color(0xff38233c), fontSize: 15),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        DropdownButton<String>(
+                          value: startHour,
+                          items: hours.map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (newValue) {
+                            setState(() {
+                              startHour = newValue!;
+                            });
+                          },
+                        ),
+                        Text(" : "),
+                        DropdownButton<String>(
+                          value: startMinute,
+                          items: minutes.map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (newValue) {
+                            setState(() {
+                              startMinute = newValue!;
+                            });
+                          },
+                        ),
+                        Text(" - "),
+                        DropdownButton<String>(
+                          value: endHour,
+                          items: hours.map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (newValue) {
+                            setState(() {
+                              endHour = newValue!;
+                            });
+                          },
+                        ),
+                        Text(" : "),
+                        DropdownButton<String>(
+                          value: endMinute,
+                          items: minutes.map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (newValue) {
+                            setState(() {
+                              endMinute = newValue!;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      "อัปเดตล่าสุด: ${DateTime.now()}",
+                      style: TextStyle(color: Color(0xff38233c), fontSize: 15),
+                    ),
+                  ],
                 ),
               ),
-              TextField(
-                controller: subtitleController,
-                decoration: InputDecoration(
-                  labelText: 'Description',
-                  hintText: "รายละเอียด",
-                ),
-              ),
-              TextField(
-                controller: timeController,
-                decoration: InputDecoration(
-                  labelText: 'Time (HH:MM - HH:MM)',
-                  hintText: "เวลา",
-                ),
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'\d|:|-')),
-                  LengthLimitingTextInputFormatter(13),
-                  TextInputFormatter.withFunction((oldValue, newValue) {
-                    // ตรวจสอบรูปแบบ
-                    final text = newValue.text;
-                    if (RegExp(r'^\d{0,2}(:\d{0,2})?(-\d{0,2}(:\d{0,2})?)?$')
-                        .hasMatch(text)) {
-                      return newValue;
-                    }
-                    return oldValue;
-                  }),
-                ],
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  tasks[index]['title'] = titleController.text;
-                  tasks[index]['subtitle'] = subtitleController.text;
-                  tasks[index]['time'] = timeController.text;
-                });
-                Navigator.of(context).pop();
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Color(0xffebe8af),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: Text(
-                  "บันทึก",
-                  style: TextStyle(
-                    color: Color(0xff1e2db5),
-                    fontSize: 14,
-                    fontWeight: FontWeight.normal,
+              actions: [
+                TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Color(0xff0f1c41),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      tasks[index]['title'] = titleController.text;
+                      tasks[index]['subtitle'] = subtitleController.text;
+                      tasks[index]['date'] =
+                          "$selectedDate $selectedMonth $selectedYear";
+                      tasks[index]['time'] =
+                          "$startHour:$startMinute - $endHour:$endMinute";
+                      tasks[index]['updated_at'] = DateTime.now().toString();
+                    });
+                    Navigator.of(context).pop();
+                  },
+                  child: Text(
+                    "บันทึก",
+                    style: TextStyle(
+                      color: Color(0xffE4EDF2),
+                      fontSize: 15,
+                      fontWeight: FontWeight.normal,
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ],
+              ],
+            );
+          },
         );
       },
     );
@@ -1716,59 +1877,93 @@ class _TaskPageState extends State<TaskPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xfffcc00b),
+        backgroundColor: Color(0xffFEECB6),
         title: Text(
           'ตารางงาน',
-          style: TextStyle(color: Color(0xff161E54)),
+          style: TextStyle(color: Color(0xff070919)),
         ),
       ),
-      body: ListView.builder(
-        itemCount: tasks.length,
-        itemBuilder: (context, index) {
-          final task = tasks[index];
-          return GestureDetector(
-            // onTap: () => Navigator.pushNamed(context, '/page1'),
-            child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 10),
-              decoration: BoxDecoration(
-                color: Color(0xffe6e6e6),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Card(
-                margin: EdgeInsets.all(8.0),
-                child: ListTile(
-                  tileColor: Color(0xFFFCFAF4),
-                  leading:
-                      Icon(Icons.arrow_forward_ios, color: Color(0xFF16130C)),
-                  title: Text(task['title']),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(task['subtitle']),
-                      Text(task['time']),
-                    ],
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.edit, color: Color(0xffe3df17)),
-                        onPressed: () => _editTask(index),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.delete, color: Color(0xffea3427)),
-                        onPressed: () => _deleteTask(index),
-                      ),
-                    ],
+      backgroundColor: Color(0xffF5F8F3),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 20),
+            Column(
+              children: [
+                const CircleAvatar(
+                  radius: 40,
+                  backgroundColor: Color(0xff781132),
+                  child: Icon(Icons.calendar_month,
+                      size: 40, color: Color(0xffe2f0f7)),
+                ),
+                const Text(
+                  'รายการตารางงาน',
+                  style: TextStyle(
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xff2a0638)),
+                ),
+                const SizedBox(height: 5),
+                Text('รายการทั้งหมด ${tasks.length} งาน',
+                    style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.normal,
+                        color: Color(0xff0c275a))),
+              ],
+            ),
+            Expanded(
+              child: Container(
+                // decoration: const BoxDecoration(color: Color(0xffe3acb5)),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 50, bottom: 50),
+                  child: ListView.builder(
+                    itemCount: tasks.length,
+                    itemBuilder: (context, index) {
+                      final task = tasks[index];
+                      return ListTile(
+                        tileColor: Color(0xFFE4EDF2),
+                        title: Text(
+                          task['title'],
+                          style: TextStyle(
+                            color: Color(0xff0f1c41),
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        subtitle: Text(
+                          "${task['subtitle']}\n${task['date']} | ${task['time']}",
+                          style: TextStyle(
+                            color: Color(0xff0f1c41),
+                            fontSize: 16,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.edit, color: Color(0xffF7C46C)),
+                              onPressed: () => _editTask(index),
+                            ),
+                            IconButton(
+                              icon:
+                                  Icon(Icons.delete, color: Color(0xffea3427)),
+                              onPressed: () => _deleteTask(index),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),
             ),
-          );
-        },
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _addTask, //0xfffed65c
+        onPressed: _addTask,
         backgroundColor: Color(0xff435bb5),
         child: Icon(Icons.add, color: Color(0xfffcc00b), size: 30),
       ),
@@ -1882,7 +2077,6 @@ class _AddScreenState extends State<AddScreen> {
                     },
                   ),
                   const SizedBox(height: 10),
-
                   // ชื่อวิชา
                   TextFormField(
                     decoration: const InputDecoration(
@@ -1906,6 +2100,9 @@ class _AddScreenState extends State<AddScreen> {
                   const SizedBox(height: 20),
                   // ปุ่มบันทึก
                   ElevatedButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: Color(0xff185ca1),
+                    ),
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
                         _formKey.currentState!.save();
@@ -1921,7 +2118,14 @@ class _AddScreenState extends State<AddScreen> {
                         Navigator.pop(context);
                       }
                     },
-                    child: const Text('บันทึก'),
+                    child: const Text(
+                      'บันทึก',
+                      style: TextStyle(
+                        color: Color(0xffE4EDF2),
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -2024,68 +2228,80 @@ class _EditScreenState extends State<EditScreen> {
               ),
             ),
             const SizedBox(height: 30),
-
-            // ปุ่มบันทึก & ยกเลิก
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('ยกเลิก'),
-                ),
+                    style: TextButton.styleFrom(
+                      backgroundColor: Color(0xffa11828),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('ยกเลิก',
+                        style: TextStyle(
+                          color: Color(0xffFCFCFB),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ))),
                 ElevatedButton(
-                  onPressed: () {
-                    final newId = idController.text.trim();
-                    final newName = nameController.text.trim();
+                    style: TextButton.styleFrom(
+                      backgroundColor: Color(0xff18a14c),
+                    ),
+                    onPressed: () {
+                      final newId = idController.text.trim();
+                      final newName = nameController.text.trim();
 
-                    // ตรวจสอบความถูกต้องของข้อมูล
-                    if (newId.isEmpty ||
-                        newName.isEmpty ||
-                        selectedDay == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('กรุณากรอกข้อมูลให้ครบถ้วน')),
-                      );
-                      return;
-                    }
-                    if (newId.length != 7) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('รหัสวิชาต้องมี 7 ตัวอักษร')),
-                      );
-                      return;
-                    }
-                    if (Subject.subjectItems.any((item) =>
-                        item['id'] == newId &&
-                        item != Subject.subjectItems[widget.index])) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('รหัสวิชานี้ซ้ำ')),
-                      );
-                      return;
-                    }
-                    if (Subject.subjectItems.any((item) =>
-                        item['name'] == newName &&
-                        item != Subject.subjectItems[widget.index])) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('ชื่อวิชานี้ซ้ำ')),
-                      );
-                      return;
-                    }
+                      // ตรวจสอบความถูกต้องของข้อมูล
+                      if (newId.isEmpty ||
+                          newName.isEmpty ||
+                          selectedDay == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('กรุณากรอกข้อมูลให้ครบถ้วน')),
+                        );
+                        return;
+                      }
+                      if (newId.length != 7) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('รหัสวิชาต้องมี 7 ตัวอักษร')),
+                        );
+                        return;
+                      }
+                      if (Subject.subjectItems.any((item) =>
+                          item['id'] == newId &&
+                          item != Subject.subjectItems[widget.index])) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('รหัสวิชานี้ซ้ำ')),
+                        );
+                        return;
+                      }
+                      if (Subject.subjectItems.any((item) =>
+                          item['name'] == newName &&
+                          item != Subject.subjectItems[widget.index])) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('ชื่อวิชานี้ซ้ำ')),
+                        );
+                        return;
+                      }
+                      // บันทึกค่าที่แก้ไข
+                      setState(() {
+                        Subject.subjectItems[widget.index]['id'] = newId;
+                        Subject.subjectItems[widget.index]['name'] = newName;
+                        Subject.subjectItems[widget.index]['day'] =
+                            selectedDay!;
+                        Subject.updateSubjectItems();
+                      });
 
-                    // บันทึกค่าที่แก้ไข
-                    setState(() {
-                      Subject.subjectItems[widget.index]['id'] = newId;
-                      Subject.subjectItems[widget.index]['name'] = newName;
-                      Subject.subjectItems[widget.index]['day'] = selectedDay!;
-                      Subject.updateSubjectItems();
-                    });
-
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('บันทึก'),
-                ),
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('บันทึก',
+                        style: TextStyle(
+                          color: Color(0xffFCFCFB),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ))),
               ],
             ),
           ],
